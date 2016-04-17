@@ -1,0 +1,17 @@
+body {
+    font-family: verdana,sans-serif;
+    text-align: center;
+    color:#555;
+}
+a {
+    color:#555;
+}
+a:visited{
+    color:#222;
+}
+.services {
+    list-style:none;
+    padding:0;
+    margin:0;
+    text-align: center;
+}
