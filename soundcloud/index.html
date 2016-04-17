@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Soundcloud mix lister</title> 
+        <style>
+        body{
+            font-family:verdana;
+        }
+        ul{
+            margin:0;
+            padding:0;
+            overflow:auto;
+        }
+        li{
+            clear:both;
+            list-style:none;
+            margin:20px 0;
+            overflow:auto;
+        }
+        li img{
+            float:left;
+            margin-right:10px;
+        }
+        h3{
+            margin:0 0 10px 0;
+            padding:0;
+        }
+        #load-more{
+            clear:both;
+            width:600px;
+            height:50px;
+        }
+        </style>
+    </head>
+    <body>
+        <a href="#">
+            <img src="//connect.soundcloud.com/2/btn-connect-s.png" id="sc-connect" />
+            <img src="//connect.soundcloud.com/2/btn-disconnect-s.png" id="sc-disconnect" style="display:none" />
+        </a>
+        <ul id="results"></ul>
+        <button id="load-more" style="display:none">Load More</button>
+        <script src="//connect.soundcloud.com/sdk.js"></script>
+        <script>
+        var ACCESS_TOKEN = localStorage.getItem('access_token'),
+            moreMixesUrl = '/e1/me/stream',
+            embedQueue = [];
+
+        // initialize client with app credentials
+        SC.initialize({
+            client_id: '4440ec50aeddcd89ed7a18f2aa4a2a3d',
+            redirect_uri: window.location.origin + '/soundcloud/callback.html',
+            access_token: ACCESS_TOKEN
+        });
+
+        function setAccessToken(value){
+            ACCESS_TOKEN = value;
+            localStorage.setItem('access_token', ACCESS_TOKEN);
+        }
+
+        function connect(){
+            // initiate auth popup
+            SC.connect(function(){
+                setAccessToken(SC.accessToken());
+
+                load();
+            });
+        }
+
+        function localStorageEvent(){
+            if(e.key !== 'access_token'){
+                return;
+            }
+            setAccessToken(e.newValue);
+
+            load();
+        }
+
+        function load(){
+            document.getElementById('sc-connect').style.display = 'none';
+            document.getElementById('sc-disconnect').style.display = '';
+            document.getElementById('load-more').style.display = '';
+
+            fetchMixes();
+        }
+
+        function toggleFavourite(e){
+            var el = this,
+                trackId = el.dataset.id;
+
+            e.preventDefault();
+
+            SC.get('/me', function(me){
+                var userId = me.id;
+
+                SC.get('/tracks/' + trackId, function(track){
+                    var method = 'put';
+                    el.innerText = 'unfavourite';
+                    if(track.user_favorite){
+                        el.innerText = 'favourite';
+                        method = 'delete';
+                    }
+                    SC[method]('/users/' + userId + '/favorites/' + trackId, function(result){
+                        // alert(method + '\'d track ' + JSON.stringify(result));
+                    });
+                });
+            });
+        }
+
+        function listMixes(activities){
+            var results = document.getElementById('results');
+            activities.forEach(function(activity){
+                var el,
+                    origin = activity.track || activity.playlist || {duration: 0},
+                    duration = origin.duration;
+
+                if(duration > 1000 * 60 * 20){
+                    el = document.createElement('li');
+                    el.innerHTML += (origin.artwork_url ? '<img src="' + origin.artwork_url + '">' : '') +
+                        '<h3>' +
+                        '<a target=_blank href="' + origin.permalink_url + '">' + origin.title + '</' + 'a>' +
+                        ' <small>' + origin.user.username + '</' + 'small>' +
+                        ' <span class=duration>' + parseInt(duration / (1000*60), 10) + ' mins</' + 'span>' +
+                        ' <small><a href class=favourite data-id="' + origin.id + '">' + 
+                                (origin.user_favorite ? 'unfavourite' : 'favourite') + '</' + 'a></' + 'small>' +
+                        '</' + 'h3>' +
+                        '<p>' +
+                        '<span class=last_modified>' + origin.last_modified + '</' + 'span>' +
+                        '</' + 'p>' +
+                        '';
+                    el.querySelector('a.favourite').addEventListener('click', toggleFavourite);
+                    results.appendChild(el);
+                }
+            });
+        }
+
+        function fetchMixes(){
+            document.getElementById('load-more').disabled = true;
+            document.getElementById('load-more').innerText = 'Loading';
+
+            SC.get(moreMixesUrl, function(activities) {
+            document.getElementById('load-more').disabled = false;
+                document.getElementById('load-more').innerText = 'Load More';
+
+                listMixes(activities.collection);
+
+                moreMixesUrl = activities.next_href;
+            });
+        }
+
+        document.getElementById('sc-connect').addEventListener('click', connect);
+        document.getElementById('load-more').addEventListener('click', fetchMixes);
+        window.addEventListener('storage', localStorageEvent);
+
+        if(ACCESS_TOKEN){
+            load();
+        }
+        </script>
+    </body>
+</html>
