@@ -65,6 +65,11 @@
                 load();
             });
         }
+        function disconnect(){
+            localStorage.removeItem('access_token');
+
+            window.location.reload();
+        }
 
         function localStorageEvent(e){
             if(e.key !== 'access_token'){
@@ -148,6 +153,7 @@
         }
 
         document.getElementById('sc-connect').addEventListener('click', connect);
+        document.getElementById('sc-disconnect').addEventListener('click', disconnect);
         document.getElementById('load-more').addEventListener('click', fetchMixes);
         window.addEventListener('storage', localStorageEvent);
 
