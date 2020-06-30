@@ -115,7 +115,7 @@
             var results = document.getElementById('results');
             activities.forEach(function(activity){
                 var el,
-                    origin = activity.track || activity.playlist || {duration: 0},
+                    origin = activity.origin || {duration: 0},
                     duration = origin.duration;
 
                 if(duration > 1000 * 60 * 20){
