@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Soundcloud mix lister</title> 
+        <title>Soundcloud mix lister</title>
         <style>
         body{
             font-family:verdana;
@@ -42,7 +42,7 @@
         <script src="//connect.soundcloud.com/sdk.js"></script>
         <script>
         var ACCESS_TOKEN = localStorage.getItem('access_token'),
-            moreMixesUrl = '/e1/me/stream',
+            moreMixesUrl = '/me/stream',
             embedQueue = [];
 
         // initialize client with app credentials
@@ -120,7 +120,7 @@
                         '<a target=_blank href="' + origin.permalink_url + '">' + origin.title + '</' + 'a>' +
                         ' <small>' + origin.user.username + '</' + 'small>' +
                         ' <span class=duration>' + parseInt(duration / (1000*60), 10) + ' mins</' + 'span>' +
-                        ' <small><a href class=favourite data-id="' + origin.id + '">' + 
+                        ' <small><a href class=favourite data-id="' + origin.id + '">' +
                                 (origin.user_favorite ? 'unfavourite' : 'favourite') + '</' + 'a></' + 'small>' +
                         '</' + 'h3>' +
                         '<p>' +
