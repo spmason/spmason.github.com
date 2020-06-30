@@ -42,7 +42,7 @@
         <script src="//connect.soundcloud.com/sdk.js"></script>
         <script>
         var ACCESS_TOKEN = localStorage.getItem('access_token'),
-            moreMixesUrl = '/me/activities',
+            moreMixesUrl = '/me/activities?limit=50',
             embedQueue = [];
 
         // initialize client with app credentials
@@ -143,7 +143,7 @@
             document.getElementById('load-more').innerText = 'Loading';
 
             SC.get(moreMixesUrl, function(activities) {
-            document.getElementById('load-more').disabled = false;
+                document.getElementById('load-more').disabled = false;
                 document.getElementById('load-more').innerText = 'Load More';
 
                 listMixes(activities.collection);
